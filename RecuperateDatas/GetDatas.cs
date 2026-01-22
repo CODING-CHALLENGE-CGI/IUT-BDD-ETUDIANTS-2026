@@ -276,7 +276,39 @@ namespace RecuperateDatas
             return characterFriend;
         }
 
+        /// <summary>
+        /// Question bonus : La requête ci dessous a plusieurs gros problèmes, lesquels ?
+        /// </summary>
+        /// <returns></returns>
+        public static List<HomePlanetCharacter> GetHomePlanetWithIssue()
+        {
+            List<HomePlanetCharacter> homePlanetsCharacters = new List<HomePlanetCharacter>();
+
+            using (var connection = new SqliteConnection("Data Source=" + sqlitePath))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
+                SELECT c.Name, p.Name AS HomePlanetName 
+                FROM Characters c, Planets p";
 
 
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string home = reader.IsDBNull(reader.GetOrdinal("HomePlanetName")) ? "null" : reader.GetString(1);
+
+                        homePlanetsCharacters.Add(new HomePlanetCharacter(reader.GetString(0), home));
+                    }
+                }
+                connection.Close();
+
+            }
+
+            return homePlanetsCharacters;
+        }
     }
 }
